@@ -84,9 +84,11 @@ class Missile:
     def distance(self, x, y):
         return self.pen.distance(x, y)
 
+    @property
     def get_x(self):
         return self.pen.xcor()
 
+    @property
     def get_y(self):
         return self.pen.ycor()
 
@@ -99,7 +101,8 @@ def fire_missile(x, y):
 def fire_enemy_missile():
     enemy_x = random.randint(-SCREEN_X / 2, SCREEN_X / 2)
     enemy_y = SCREEN_Y / 2
-    info = Missile(x1=enemy_x, y1=enemy_y, x2=BASE_X, y2=BASE_Y, color='red')
+    target = random.choice(buildings)
+    info = Missile(x1=enemy_x, y1=enemy_y, x2=target.x, y2=target.y, color='red')
     enemy_missiles.append(info)
 
 
@@ -131,12 +134,14 @@ def check_impact():
     for enemy_missile in enemy_missiles:
         if enemy_missile.state != 'explode':
             continue
-        if enemy_missile.distance(BASE_X, BASE_Y) < enemy_missile.radius * 10:
-            base.health -= 100
+        for building in buildings:
+            if enemy_missile.distance(building.x, building.y) < enemy_missile.radius * 10:
+                building.health -= 100
 
 
 def game_over():
     return base.health < 0
+
 
 window = turtle.Screen()
 window.bgpic('images/background.png')
@@ -158,7 +163,7 @@ building_infos = {
     }
 
 for name, position in building_infos.items():
-    base = Building(x1=position[0], y1=position[1], health=1000, name=name)
+    buildings.append(Building(x1=position[0], y1=position[1], health=1000, name=name))
 
 buildings.append(base)
 
