@@ -10,10 +10,12 @@ ENEMY_COUNT = 5
 
 
 class Building:
+    INITIAL_HEALTH = 1000
+
     def __init__(self, x1, y1, health, name):
         self.x = x1
         self.y = y1
-        self.health = health
+        self.health = self.INITIAL_HEALTH
         self.name = name
 
         pen = turtle.Turtle(visible=False)
@@ -28,10 +30,23 @@ class Building:
         self.pen = pen
 
     def get_pic_name(self):
+        if self.health < self.INITIAL_HEALTH * 0.2:
+            return f"{self.name}_3.gif"
+        if self.health < self.INITIAL_HEALTH * 0.8:
+            return f"{self.name}_2.gif"
         return f"{self.name}_1.gif"
+
+    def step(self):
+        pic_name = self.get_pic_name()
+        pic_path = os.path.join(BASE_PATH, "images", pic_name)
+        if self.pen.shape() != pic_path:
+            window.register_shape(pic_path)
+            self.pen.shape(pic_path)
 
 
 class MissileBase(Building):
+    INITIAL_HEALTH = 2000
+
     def get_pic_name(self):
         return f"{self.name}.gif"
 
@@ -139,6 +154,11 @@ def check_impact():
                 building.health -= 100
 
 
+def draw_buildings():
+    for building in buildings:
+        building.step()
+
+
 def game_over():
     return base.health < 0
 
@@ -167,6 +187,7 @@ for name, position in building_infos.items():
 
 buildings.append(base)
 
+
 while True:
     window.update()
 
@@ -177,6 +198,7 @@ while True:
     if random.randint(1, 60) == 1:
         fire_enemy_missile()
 
+    draw_buildings()
     check_interception()
     move_missiles(our_missiles)
     move_missiles(enemy_missiles)
